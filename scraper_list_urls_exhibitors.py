@@ -10,7 +10,7 @@ driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
 driver.get(URL_EXHIBITORS_LIST)
 time.sleep(1)  # Allow 1 seconds for the web page to open
 
-urls_path_exhibitor_detail_page = set()
+urls_path_exhibitor_detail_page = []
 screen_height = driver.execute_script("return window.screen.height;")
 i = 1
 
@@ -29,7 +29,7 @@ while True:
 
 soup = BeautifulSoup(driver.page_source, "html.parser")
 for a in soup.select_one(".infinite-scroll-component").find_all("a"):
-    urls_path_exhibitor_detail_page.add(a.attrs["href"])
+    urls_path_exhibitor_detail_page.append(a.attrs["href"])
 
 print(f"Number of scraped detail exhibitor urls: {len(urls_path_exhibitor_detail_page)}")
 
