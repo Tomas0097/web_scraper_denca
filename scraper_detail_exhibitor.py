@@ -14,7 +14,8 @@ worksheet = workbook.add_worksheet()
 # Fields
 # ----------------------------------------------------------------------------------------------------------------------------
 F_EXHIBITOR_NAME = "Exhibitor Name"
-# Field with same names as on the web:
+F_EXHIBITOR_ARAB_HEALTH_ONLINE_PAGE = "Exhibitor Arab Health Online Page"
+# Basic fields with same names as on the web:
 F_FEATURED_EXHIBITOR = "Featured Exhibitor"
 F_COUNTRY_PAVILON = "Country Pavilion"
 F_COUNTRY = "Country"
@@ -31,25 +32,47 @@ F_LINKEDIN = "Linkedin"
 F_YOUTUBE = "Youtube"
 F_PINTEREST = "Pinterest"
 # Contact fields:
+F_TEL_1 = "Tel 1"
+F_TEL_2 = "Tel 2"
+F_EMAIL = "Email"
+F_WEB_PAGE = "Web Page"
+F_ADRESS = "Adress"
 
+# ----------------------------------------------------------------------------------------------------------------------------
+# SVG beginning values for recognizing contact fields in html code.
+# ----------------------------------------------------------------------------------------------------------------------------
+SVG_BEGINNING_VALUES = {
+    F_TEL_1: "M33.538",
+    F_TEL_2: "M8.664",
+    F_EMAIL: "M42.495",
+    F_WEB_PAGE: "M23.666",
+    F_ADRESS: "M24.3",
+}
 
 # Sets the column number for the fields.
 WORKSHEET_FIELDS_COLUMNS = {
     F_EXHIBITOR_NAME: 0,
-    F_FEATURED_EXHIBITOR: 1,
-    F_COUNTRY_PAVILON: 2,
-    F_COUNTRY: 3,
-    F_COUNTRY_COVERAGE: 4,
-    F_NATURE_OF_BUSINESS: 5,
-    F_INTERESTED_TO_CONNECT_WITH: 6,
-    F_PRODUCT_CATEGORY_OFFERED: 7,
-    F_PRODUCT_SUBCATEGORY_OFFERED: 8,
-    F_FACEBOOK: 9,
-    F_INSTAGRAM: 10,
-    F_TWITTER: 11,
-    F_LINKEDIN: 12,
-    F_YOUTUBE: 13,
-    F_PINTEREST: 14,
+    F_EXHIBITOR_ARAB_HEALTH_ONLINE_PAGE: 2,
+    F_FEATURED_EXHIBITOR: 3,
+    F_COUNTRY_PAVILON: 4,
+    F_COUNTRY: 5,
+    F_COUNTRY_COVERAGE: 6,
+    F_NATURE_OF_BUSINESS: 7,
+    F_INTERESTED_TO_CONNECT_WITH: 8,
+    F_PRODUCT_CATEGORY_OFFERED: 9,
+    F_PRODUCT_SUBCATEGORY_OFFERED: 10,
+    F_TEL_1: 11,
+    F_TEL_2: 12,
+    F_EMAIL: 13,
+    F_WEB_PAGE: 14,
+    F_ADRESS: 15,
+    F_FACEBOOK: 16,
+    F_INSTAGRAM: 17,
+    F_TWITTER: 18,
+    F_LINKEDIN: 19,
+    F_YOUTUBE: 20,
+    F_PINTEREST: 21,
+
 }
 
 # Write headers into worksheet
@@ -68,23 +91,48 @@ with open("my_projects/web_scraper_denca/list_urls_exhibitor_detail.txt", "r") a
         div_all_fields = soup.select_one(".sc-eQGPmX")
         div_basic_fields = div_all_fields.find_all("div", {"class": "sc-kbGplQ"})
         div_social_media_fields = div_all_fields.find_all("a")
+        div_contact_fields = div_all_fields.find_all("div", {"class": "sc-gGBfsJ"})
 
-        # Save Exhibitor name
+        # Save Exhibitor name.
         exhibitor_name = div_all_fields.select_one(".sc-hMjcWo").text
         worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_EXHIBITOR_NAME], exhibitor_name)
+        # Save Exhibitor detail page url from Arab health online web.
+        worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_EXHIBITOR_ARAB_HEALTH_ONLINE_PAGE], url)
 
-        # Save basic information
+        # Save Exhibitor basic information
         for field in div_basic_fields:
             field_name = field.select_one(".sc-exdmVY").text
 
+            # Fields with one value
             if field_name in [F_COUNTRY_PAVILON, F_NATURE_OF_BUSINESS]:
                 worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[field_name], field.contents[1].text)
 
-            elif field_name in [F_COUNTRY, F_COUNTRY_COVERAGE, F_INTERESTED_TO_CONNECT_WITH, F_PRODUCT_CATEGORY_OFFERED, F_PRODUCT_SUBCATEGORY_OFFERED]:
+            # Fields with more values
+            elif field_name in [F_COUNTRY, F_COUNTRY_COVERAGE, F_INTERESTED_TO_CONNECT_WITH, F_PRODUCT_CATEGORY_OFFERED,
+                                F_PRODUCT_SUBCATEGORY_OFFERED]:
                 spans = field.find_all("span", {"class": "sc-fATqzn"})
                 worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[field_name], ", ".join([s.text for s in spans]))
 
-        # Save social media information
+        # Save Exhibitor contact information
+        for field in div_contact_fields:
+            # Exclude contact field in header on exhibitor detail page
+            if "sc-hMjcWo" not in field.previous_sibling.attrs["class"]:
+
+                svg_path = field.select_one("path").attrs["d"]
+                text = field.select_one("a").text
+
+                if svg_path.startswith(SVG_BEGINNING_VALUES[F_TEL_1]):
+                    worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_TEL_1], text)
+                elif svg_path.startswith(SVG_BEGINNING_VALUES[F_TEL_2]):
+                    worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_TEL_2], text)
+                elif svg_path.startswith(SVG_BEGINNING_VALUES[F_EMAIL]):
+                    worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_EMAIL], text)
+                elif svg_path.startswith(SVG_BEGINNING_VALUES[F_WEB_PAGE]):
+                    worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_WEB_PAGE], text)
+                elif svg_path.startswith(SVG_BEGINNING_VALUES[F_ADRESS]):
+                    worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_ADRESS], text)
+
+        # Save Exhibitor social media information
         for field in div_social_media_fields:
             href = field["href"]
 
@@ -102,6 +150,5 @@ with open("my_projects/web_scraper_denca/list_urls_exhibitor_detail.txt", "r") a
                 worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_YOUTUBE], href)
 
         row += 1
-
 
 workbook.close()
