@@ -60,8 +60,8 @@ for k, v in WORKSHEET_FIELDS_COLUMNS.items():
 row = 1
 
 with open("my_projects/web_scraper_denca/list_urls_exhibitor_detail.txt", "r") as file:
-    for url in range(1):
-        driver.get("https://connections.arabhealthonline.com/event/arab-health-10/exhibitor/RXhoaWJpdG9yXzYxNDU2OA%3D%3D")
+    for url in file:
+        driver.get(url)
         time.sleep(2)  # Allow 2 seconds for the web page to open
 
         soup = BeautifulSoup(driver.page_source, "html.parser")
