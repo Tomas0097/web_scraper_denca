@@ -52,26 +52,26 @@ SVG_BEGINNING_VALUES = {
 # Sets the column number for the fields.
 WORKSHEET_FIELDS_COLUMNS = {
     F_EXHIBITOR_NAME: 0,
-    F_EXHIBITOR_ARAB_HEALTH_ONLINE_PAGE: 2,
-    F_FEATURED_EXHIBITOR: 3,
-    F_COUNTRY_PAVILON: 4,
-    F_COUNTRY: 5,
-    F_COUNTRY_COVERAGE: 6,
-    F_NATURE_OF_BUSINESS: 7,
-    F_INTERESTED_TO_CONNECT_WITH: 8,
-    F_PRODUCT_CATEGORY_OFFERED: 9,
-    F_PRODUCT_SUBCATEGORY_OFFERED: 10,
-    F_TEL_1: 11,
-    F_TEL_2: 12,
-    F_EMAIL: 13,
-    F_WEB_PAGE: 14,
-    F_ADRESS: 15,
-    F_FACEBOOK: 16,
-    F_INSTAGRAM: 17,
-    F_TWITTER: 18,
-    F_LINKEDIN: 19,
-    F_YOUTUBE: 20,
-    F_PINTEREST: 21,
+    F_EXHIBITOR_ARAB_HEALTH_ONLINE_PAGE: 1,
+    F_FEATURED_EXHIBITOR: 2,
+    F_COUNTRY_PAVILON: 3,
+    F_COUNTRY: 4,
+    F_COUNTRY_COVERAGE: 5,
+    F_NATURE_OF_BUSINESS: 6,
+    F_INTERESTED_TO_CONNECT_WITH: 7,
+    F_PRODUCT_CATEGORY_OFFERED: 8,
+    F_PRODUCT_SUBCATEGORY_OFFERED: 9,
+    F_TEL_1: 10,
+    F_TEL_2: 11,
+    F_EMAIL: 12,
+    F_WEB_PAGE: 13,
+    F_ADRESS: 14,
+    F_FACEBOOK: 15,
+    F_INSTAGRAM: 16,
+    F_TWITTER: 17,
+    F_LINKEDIN: 18,
+    F_YOUTUBE: 19,
+    F_PINTEREST: 20,
 
 }
 
@@ -83,72 +83,76 @@ for k, v in WORKSHEET_FIELDS_COLUMNS.items():
 row = 1
 
 with open("my_projects/web_scraper_denca/list_urls_exhibitor_detail.txt", "r") as file:
-    for url in file:
-        driver.get(url)
-        time.sleep(2)  # Allow 2 seconds for the web page to open
+    try:
+        for url in file:
+            driver.get(url)
+            time.sleep(2)  # Allow 2 seconds for the web page to open
 
-        soup = BeautifulSoup(driver.page_source, "html.parser")
-        div_all_fields = soup.select_one(".sc-eQGPmX")
-        div_basic_fields = div_all_fields.find_all("div", {"class": "sc-kbGplQ"})
-        div_social_media_fields = div_all_fields.find_all("a")
-        div_contact_fields = div_all_fields.find_all("div", {"class": "sc-gGBfsJ"})
+            soup = BeautifulSoup(driver.page_source, "html.parser")
+            div_all_fields = soup.select_one(".sc-eQGPmX")
+            div_basic_fields = div_all_fields.find_all("div", {"class": "sc-kbGplQ"})
+            div_social_media_fields = div_all_fields.find_all("a")
+            div_contact_fields = div_all_fields.find_all("div", {"class": "sc-gGBfsJ"})
 
-        # Save Exhibitor name.
-        exhibitor_name = div_all_fields.select_one(".sc-hMjcWo").text
-        worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_EXHIBITOR_NAME], exhibitor_name)
-        # Save Exhibitor detail page url from Arab health online web.
-        worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_EXHIBITOR_ARAB_HEALTH_ONLINE_PAGE], url)
+            # Save Exhibitor name.
+            exhibitor_name = div_all_fields.select_one(".sc-hMjcWo").text
+            worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_EXHIBITOR_NAME], exhibitor_name)
+            # Save Exhibitor detail page url from Arab health online web.
+            worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_EXHIBITOR_ARAB_HEALTH_ONLINE_PAGE], url)
 
-        # Save Exhibitor basic information
-        for field in div_basic_fields:
-            field_name = field.select_one(".sc-exdmVY").text
+            # Save Exhibitor basic information
+            for field in div_basic_fields:
+                field_name = field.select_one(".sc-exdmVY").text
 
-            # Fields with one value
-            if field_name in [F_COUNTRY_PAVILON, F_NATURE_OF_BUSINESS]:
-                worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[field_name], field.contents[1].text)
+                # Fields with one value
+                if field_name in [F_COUNTRY_PAVILON, F_NATURE_OF_BUSINESS]:
+                    worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[field_name], field.contents[1].text)
 
-            # Fields with more values
-            elif field_name in [F_COUNTRY, F_COUNTRY_COVERAGE, F_INTERESTED_TO_CONNECT_WITH, F_PRODUCT_CATEGORY_OFFERED,
-                                F_PRODUCT_SUBCATEGORY_OFFERED]:
-                spans = field.find_all("span", {"class": "sc-fATqzn"})
-                worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[field_name], ", ".join([s.text for s in spans]))
+                # Fields with more values
+                elif field_name in [F_COUNTRY, F_COUNTRY_COVERAGE, F_INTERESTED_TO_CONNECT_WITH, F_PRODUCT_CATEGORY_OFFERED,
+                                    F_PRODUCT_SUBCATEGORY_OFFERED]:
+                    spans = field.find_all("span", {"class": "sc-fATqzn"})
+                    worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[field_name], ", ".join([s.text for s in spans]))
 
-        # Save Exhibitor contact information
-        for field in div_contact_fields:
-            # Exclude contact field in header on exhibitor detail page
-            if "sc-hMjcWo" not in field.previous_sibling.attrs["class"]:
+            # Save Exhibitor contact information
+            for field in div_contact_fields:
+                # Exclude contact field in header on exhibitor detail page
+                if "sc-hMjcWo" not in field.previous_sibling.attrs["class"]:
 
-                svg_path = field.select_one("path").attrs["d"]
-                text = field.select_one("a").text
+                    svg_path = field.select_one("path").attrs["d"]
+                    text = field.select_one("a").text
 
-                if svg_path.startswith(SVG_BEGINNING_VALUES[F_TEL_1]):
-                    worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_TEL_1], text)
-                elif svg_path.startswith(SVG_BEGINNING_VALUES[F_TEL_2]):
-                    worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_TEL_2], text)
-                elif svg_path.startswith(SVG_BEGINNING_VALUES[F_EMAIL]):
-                    worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_EMAIL], text)
-                elif svg_path.startswith(SVG_BEGINNING_VALUES[F_WEB_PAGE]):
-                    worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_WEB_PAGE], text)
-                elif svg_path.startswith(SVG_BEGINNING_VALUES[F_ADRESS]):
-                    worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_ADRESS], text)
+                    if svg_path.startswith(SVG_BEGINNING_VALUES[F_TEL_1]):
+                        worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_TEL_1], text)
+                    elif svg_path.startswith(SVG_BEGINNING_VALUES[F_TEL_2]):
+                        worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_TEL_2], text)
+                    elif svg_path.startswith(SVG_BEGINNING_VALUES[F_EMAIL]):
+                        worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_EMAIL], text)
+                    elif svg_path.startswith(SVG_BEGINNING_VALUES[F_WEB_PAGE]):
+                        worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_WEB_PAGE], text)
+                    elif svg_path.startswith(SVG_BEGINNING_VALUES[F_ADRESS]):
+                        worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_ADRESS], text)
 
-        # Save Exhibitor social media information
-        for field in div_social_media_fields:
-            href = field["href"]
+            # Save Exhibitor social media information
+            for field in div_social_media_fields:
+                href = field["href"]
 
-            if F_FACEBOOK.lower() in href:
-                worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_FACEBOOK], href)
-            elif F_INSTAGRAM.lower() in href:
-                worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_INSTAGRAM], href)
-            elif F_TWITTER.lower() in href:
-                worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_TWITTER], href)
-            elif F_LINKEDIN.lower() in href:
-                worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_LINKEDIN], href)
-            elif F_PINTEREST.lower() in href:
-                worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_PINTEREST], href)
-            elif F_YOUTUBE.lower() in href:
-                worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_YOUTUBE], href)
+                if F_FACEBOOK.lower() in href:
+                    worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_FACEBOOK], href)
+                elif F_INSTAGRAM.lower() in href:
+                    worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_INSTAGRAM], href)
+                elif F_TWITTER.lower() in href:
+                    worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_TWITTER], href)
+                elif F_LINKEDIN.lower() in href:
+                    worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_LINKEDIN], href)
+                elif F_PINTEREST.lower() in href:
+                    worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_PINTEREST], href)
+                elif F_YOUTUBE.lower() in href:
+                    worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_YOUTUBE], href)
 
-        row += 1
+            row += 1
+
+    except Exception as exception:
+        print(exception)
 
 workbook.close()
