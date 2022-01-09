@@ -79,7 +79,7 @@ WORKSHEET_FIELDS_COLUMNS = {
 for k, v in WORKSHEET_FIELDS_COLUMNS.items():
     worksheet.write(0, v, k)
 
-# Starting rows. Rows are zero indexed. Headers are in row: 0
+# Starting row. Rows are zero indexed. Headers are in row: 0
 row = 1
 
 with open("my_projects/web_scraper_denca/list_urls_exhibitor_detail.txt", "r") as file:
@@ -88,7 +88,7 @@ with open("my_projects/web_scraper_denca/list_urls_exhibitor_detail.txt", "r") a
 
         while not successfully_extracted_detail_page:
             try:
-                print(f"downloading: {row}/2478")
+                print(f"Extracting page: {row}/2478")
                 driver.get(url)
                 time.sleep(1)  # Allow 1 seconds for the web page to open
 
@@ -101,8 +101,6 @@ with open("my_projects/web_scraper_denca/list_urls_exhibitor_detail.txt", "r") a
                 # Save Exhibitor name.
                 exhibitor_name = div_all_fields.select_one(".sc-hMjcWo").text
                 worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_EXHIBITOR_NAME], exhibitor_name)
-
-                print(exhibitor_name)
 
                 # Save Exhibitor detail page url from Arab health online web.
                 worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_EXHIBITOR_ARAB_HEALTH_ONLINE_PAGE], url)
