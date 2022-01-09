@@ -8,7 +8,7 @@ URL_EXHIBITORS_LIST = "https://connections.arabhealthonline.com/event/arab-healt
 
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
 driver.get(URL_EXHIBITORS_LIST)
-time.sleep(1)  # Allow 1 seconds for the web page to open
+time.sleep(2)  # Allow 2 seconds for the web page to open
 
 urls_path_exhibitor_detail_page = []
 screen_height = driver.execute_script("return window.screen.height;")
