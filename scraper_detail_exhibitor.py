@@ -7,7 +7,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
 
-workbook = xlsxwriter.Workbook('databaze.xlsx')
+workbook = xlsxwriter.Workbook('database.xlsx')
 worksheet = workbook.add_worksheet()
 
 # ----------------------------------------------------------------------------------------------------------------------------
