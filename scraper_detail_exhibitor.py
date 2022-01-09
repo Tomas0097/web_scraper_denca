@@ -88,7 +88,7 @@ with open("my_projects/web_scraper_denca/list_urls_exhibitor_detail.txt", "r") a
 
         while not successfully_extracted_detail_page:
             try:
-                print(f"Extracting page: {row}/2478")
+                print(f"Extracted pages: {row}")
                 driver.get(url)
                 time.sleep(1)  # Allow 1 seconds for the web page to open
 
@@ -110,7 +110,7 @@ with open("my_projects/web_scraper_denca/list_urls_exhibitor_detail.txt", "r") a
                     field_name = field.select_one(".sc-exdmVY").text
 
                     # Fields with one value
-                    if field_name in [F_COUNTRY_PAVILION, F_NATURE_OF_BUSINESS]:
+                    if field_name in [F_COUNTRY_PAVILION, F_NATURE_OF_BUSINESS, F_FEATURED_EXHIBITOR]:
                         worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[field_name], field.contents[1].text)
 
                     # Fields with more values
@@ -163,3 +163,4 @@ with open("my_projects/web_scraper_denca/list_urls_exhibitor_detail.txt", "r") a
         row += 1
 
 workbook.close()
+driver.close()
