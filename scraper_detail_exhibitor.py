@@ -36,7 +36,7 @@ F_TEL_1 = "Tel 1"
 F_TEL_2 = "Tel 2"
 F_EMAIL = "Email"
 F_WEB_PAGE = "Web Page"
-F_ADRESS = "Adress"
+F_ADDRESS = "Address"
 
 # ----------------------------------------------------------------------------------------------------------------------------
 # SVG beginning values for recognizing contact fields in html code.
@@ -46,7 +46,7 @@ SVG_BEGINNING_VALUES = {
     F_TEL_2: "M8.664",
     F_EMAIL: "M42.495",
     F_WEB_PAGE: "M23.666",
-    F_ADRESS: "M24.3",
+    F_ADDRESS: "M24.3",
 }
 
 # Sets the column number for the fields.
@@ -65,7 +65,7 @@ WORKSHEET_FIELDS_COLUMNS = {
     F_TEL_2: 11,
     F_EMAIL: 12,
     F_WEB_PAGE: 13,
-    F_ADRESS: 14,
+    F_ADDRESS: 14,
     F_FACEBOOK: 15,
     F_INSTAGRAM: 16,
     F_TWITTER: 17,
@@ -135,8 +135,8 @@ with open("my_projects/web_scraper_denca/list_urls_exhibitor_detail.txt", "r") a
                             worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_EMAIL], text)
                         elif svg_path.startswith(SVG_BEGINNING_VALUES[F_WEB_PAGE]):
                             worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_WEB_PAGE], text)
-                        elif svg_path.startswith(SVG_BEGINNING_VALUES[F_ADRESS]):
-                            worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_ADRESS], text)
+                        elif svg_path.startswith(SVG_BEGINNING_VALUES[F_ADDRESS]):
+                            worksheet.write(row, WORKSHEET_FIELDS_COLUMNS[F_ADDRESS], text)
 
                 # Save Exhibitor social media information
                 for field in div_social_media_fields:
